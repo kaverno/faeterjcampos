@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAETERJ Campos - Gestão Portuária: Lidere o Futuro!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Certifica que Chart.js está incluído -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #334155; /* slate-700 */
+        }
+        /* Estilos do logotipo para o cabeçalho */
+        .header-logo-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transform: scale(1);
+            transition: transform 0.3s ease-in-out;
+        }
+        .header-logo-container:hover {
+            transform: scale(1.03);
+        }
+        .header-logo-icon-wrapper {
+            width: 40px;
+            height: 30px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .header-book-base {
+            width: 100%;
+            height: 20px;
+            background-color: #0369a1; /* sky-700 */
+            border-radius: 0 0 5px 5px;
+            position: absolute;
+            bottom: 0;
+            clip-path: polygon(0 0, 100% 0, 80% 100%, 20% 100%);
+            transform: translateY(5px);
+        }
+        .header-arrow-up {
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 20px solid #f59e0b; /* amber-500 */
+            position: absolute;
+            top: 0px;
+            transform: translateY(0px);
+            z-index: 1;
+        }
+        .header-wave-element {
+            width: 30px;
+            height: 15px;
+            background-color: #0ea5e9; /* sky-500 */
+            border-radius: 0 0 50% 50%;
+            position: absolute;
+            bottom: 0px;
+            opacity: 0.7;
+            transform: translateY(5px);
+            z-index: 0;
+        }
+        .header-logo-text {
+            line-height: 1;
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+        .header-logo-text-faeterj {
+            font-weight: 800;
+            color: #0369a1; /* sky-700 */
+            letter-spacing: -0.05em;
+            font-size: 1.25rem; /* text-xl */
+        }
+        .header-logo-text-campos {
+            font-weight: 600;
+            color: #475569; /* slate-600 */
+            font-size: 0.875rem; /* text-sm */
+            margin-top: 0;
+        }
+        @media (min-width: 768px) {
+            .header-logo-text {
+                flex-direction: row;
+                gap: 0.5rem;
+                font-size: 1.5rem; /* text-2xl on larger screens */
+            }
+            .header-logo-text-faeterj {
+                font-size: 1.5rem; /* text-2xl */
+            }
+            .header-logo-text-campos {
+                font-size: 1rem; /* text-base */
+                margin-top: 0;
+            }
+            .header-logo-container {
+                gap: 1rem;
+            }
+            .header-logo-icon-wrapper {
+                width: 60px;
+                height: 40px;
+            }
+            .header-book-base {
+                height: 30px;
+            }
+            .header-arrow-up {
+                border-left: 15px solid transparent;
+                border-right: 15px solid transparent;
+                border-bottom: 25px solid #f59e0b;
+            }
+            .header-wave-element {
+                width: 40px;
+                height: 20px;
+            }
+        }
+        /* Estilos para os cards de habilidades */
+        .skill-card {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            border-left: 5px solid #0ea5e9; /* sky-500 */
+        }
+        .skill-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .feature-icon {
+            color: #f59e0b; /* amber-500 */
+            margin-bottom: 1rem;
+        }
+
+        /* Estilos da Timeline */
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            width: 3px;
+            background-color: #cbd5e1; /* slate-300 */
+            height: calc(100% - 2rem); /* Ajusta a altura da linha para estar dentro do padding */
+            transform: translateX(-50%);
+            top: 1rem; /* Alinha com o início do conteúdo */
+        }
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            position: relative;
+            margin-bottom: 2.5rem; /* Espaçamento entre os itens */
+        }
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+        .timeline-dot {
+            width: 20px;
+            height: 20px;
+            background-color: #0369a1; /* sky-700 */
+            border-radius: 50%;
+            border: 4px solid #fff; /* Fundo branco para destaque */
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+        .timeline-item:nth-child(odd) .timeline-content {
+            margin-right: calc(50% + 25px); /* Ajusta o conteúdo para a esquerda */
+            text-align: right;
+        }
+        .timeline-item:nth-child(even) .timeline-content {
+            margin-left: calc(50% + 25px); /* Ajusta o conteúdo para a direita */
+            text-align: left;
+        }
+        .timeline-item.certification .timeline-dot {
+            background-color: #f59e0b; /* amber-500 para certificações */
+        }
+        .timeline-item .timeline-content {
+            width: 50%;
+            padding: 0 1rem;
+            box-sizing: border-box;
+        }
+
+        @media (max-width: 767px) {
+            .timeline-line {
+                left: 1rem; /* Alinha a linha à esquerda em mobile */
+                transform: translateX(0);
+            }
+            .timeline-dot {
+                left: 1rem; /* Alinha o dot à esquerda em mobile */
+                transform: translateX(0);
+            }
+            .timeline-item .timeline-content,
+            .timeline-item:nth-child(odd) .timeline-content,
+            .timeline-item:nth-child(even) .timeline-content {
+                width: auto; /* Deixa o conteúdo ocupar a largura total menos o padding */
+                margin-left: 2.5rem; /* Ajusta o conteúdo para a direita do dot */
+                text-align: left;
+                padding: 0;
+            }
+        }
+        /* Estilos para o gráfico */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px; /* Largura máxima para o gráfico */
+            height: 400px; /* Altura fixa para o gráfico */
+            margin: 0 auto;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 500px; /* Altura maior em desktop */
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50">
+
+    <!-- Header com Logotipo e Navegação -->
+    <header id="header" class="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-50 transition-all duration-300">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <div class="header-logo-container">
+                <div class="header-logo-icon-wrapper">
+                    <div class="header-book-base"></div>
+                    <div class="header-arrow-up"></div>
+                    <div class="header-wave-element"></div>
+                </div>
+                <div class="header-logo-text">
+                    <span class="header-logo-text-faeterj">FAETERJ</span>
+                    <span class="header-logo-text-campos">Campos</span>
+                </div>
+            </div>
+            
+            <div class="hidden md:flex space-x-8">
+                <a href="#home" class="text-slate-600 hover:text-sky-700 font-semibold">Início</a>
+                <a href="#sobre-faeterj" class="text-slate-600 hover:text-sky-700 font-semibold">Sobre a FAETERJ</a>
+                <a href="#o-curso" class="text-slate-600 hover:text-sky-700 font-semibold">O Curso</a>
+                <a href="#jornada" class="text-slate-600 hover:text-sky-700 font-semibold">Jornada</a>
+                <a href="#estrutura-curricular" class="text-slate-600 hover:text-sky-700 font-semibold">Estrutura Curricular</a>
+                <a href="#habilidades" class="text-slate-600 hover:text-sky-700 font-semibold">Habilidades</a>
+                <a href="#parcerias" class="text-slate-600 hover:text-sky-700 font-semibold">Parcerias</a>
+                <a href="#contato" class="text-slate-600 hover:text-sky-700 font-semibold">Contato</a>
+            </div>
+            <a href="#parcerias" class="hidden md:block bg-sky-700 text-white font-bold py-2 px-4 rounded-lg hover:bg-sky-800 transition-colors">
+                Seja um Parceiro
+            </a>
+            <button id="mobile-menu-button" class="md:hidden text-slate-800 focus:outline-none">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden px-6 pt-2 pb-4 space-y-2 bg-white shadow-md">
+            <a href="#home" class="block text-slate-600 hover:text-sky-700 font-semibold py-1">Início</a>
+            <a href="#sobre-faeterj" class="block text-slate-600 hover:text-sky-700 font-semibold py-1">Sobre a FAETERJ</a>
+            <a href="#o-curso" class="block text-slate-600 hover:text-sky-700 font-semibold py-1">O Curso</a>
+            <a href="#jornada" class="block text-slate-600 hover:text-sky-700 font-semibold py-1">Jornada</a>
+            <a href="#estrutura-curricular" class="block text-slate-600 hover:text-sky-700 font-semibold py-1">Estrutura Curricular</a>
+            <a href="#habilidades" class="block text-slate-600 hover:text-sky-700 font-semibold py-1">Habilidades</a>
+            <a href="#parcerias" class="block text-slate-600 hover:text-sky-700 font-semibold py-1">Parcerias</a>
+            <a href="#contato" class="block text-slate-600 hover:text-sky-700 font-semibold py-1">Contato</a>
+            <a href="#parcerias" class="block bg-sky-700 text-white font-bold py-2 px-4 rounded-lg hover:bg-sky-800 transition-colors text-center mt-2">Seja um Parceiro</a>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="home" class="relative min-h-screen flex items-center bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1612776562855-ab1b5b63da65?q=80&w=2070&auto=format&fit=crop');">
+            <div class="absolute inset-0 bg-sky-900/70"></div>
+            <div class="relative container mx-auto px-6 text-center text-white py-20">
+                <h1 class="text-4xl md:text-6xl font-extrabold mb-4 leading-tight">FAETERJ Campos: Lidere o Futuro da Gestão Portuária</h1>
+                <p class="text-lg md:text-2xl mb-8 max-w-4xl mx-auto text-sky-100">Capacitamos profissionais com excelência para inovar, otimizar e gerenciar o dinâmico setor portuário do Rio de Janeiro e do Brasil.</p>
+                <div class="space-y-4 sm:space-y-0 sm:space-x-4 flex flex-col sm:flex-row justify-center">
+                    <a href="#o-curso" class="bg-amber-500 text-sky-900 font-bold py-3 px-8 rounded-lg text-lg hover:bg-amber-400 transition-transform hover:scale-105 shadow-lg">Conheça o Curso</a>
+                    <a href="#parcerias" class="bg-white text-sky-700 font-bold py-3 px-8 rounded-lg text-lg hover:bg-slate-100 transition-transform hover:scale-105 shadow-lg">Seja Nosso Parceiro</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sobre a FAETERJ Campos -->
+        <section id="sobre-faeterj" class="py-20 bg-white">
+            <div class="container mx-auto px-6 max-w-4xl">
+                <h2 class="text-4xl font-bold text-sky-800 text-center mb-10">Sobre a FAETERJ Campos</h2>
+                <div class="text-lg text-slate-700 leading-relaxed space-y-6">
+                    <p>A **FAETERJ Campos** é uma instituição de ensino superior de excelência, integrante da Fundação de Apoio à Escola Técnica (FAETEC), órgão responsável pelo gerenciamento da Educação Profissional e Tecnológica do Estado do Rio de Janeiro.</p>
+                    <p>Nossa missão é oferecer **educação pública e gratuita de qualidade**, comprometida com o avanço do conhecimento tecnológico e com a formação de cidadãos conscientes de sua responsabilidade ética e social. Desde 2014, operamos em uma sede moderna em Campos dos Goytacazes, adaptando nossa oferta educacional às necessidades dinâmicas do mercado.</p>
+                    <p>Contamos com um **corpo docente altamente qualificado**, composto por mestres e doutores com vasta experiência de mercado, que aplicam uma metodologia pedagógica focada no "aprender a ser, aprender a fazer, aprender a conviver e aprender a aprender", aliando teoria à prática para preparar o aluno para os desafios reais do mundo profissional.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- O Curso de Gestão Portuária -->
+        <section id="o-curso" class="py-20 bg-slate-100">
+            <div class="container mx-auto px-6 max-w-5xl">
+                <h2 class="text-4xl font-bold text-sky-800 text-center mb-12">Curso Superior de Tecnologia em Gestão Portuária</h2>
+                
+                <div class="grid md:grid-cols-1 gap-10 items-center">
+                    <div>
+                        <p class="text-lg text-slate-700 leading-relaxed mb-6">Em **apenas 2 anos e meio (5 períodos)**, o Curso Superior de Tecnologia em Gestão Portuária da FAETERJ Campos forma profissionais capazes de inovar e otimizar processos logísticos em portos marítimos e fluviais, minimizando custos e maximizando os benefícios da atividade econômica portuária, sempre sob uma perspectiva ética e sustentável.</p>
+                        <p class="text-lg text-slate-700 leading-relaxed mb-6">Nossa matriz curricular é desenhada para oferecer uma base sólida em áreas cruciais, combinando aulas teóricas, práticas supervisionadas e atividades acadêmico-científico-culturais. As disciplinas abrangem desde fundamentos de logística e operações portuárias até legislação, gestão de custos e aplicação de tecnologia.</p>
+                        <p class="text-lg text-slate-700 leading-relaxed font-semibold text-sky-700">O objetivo é claro: formar líderes preparados para os desafios do presente e as inovações do futuro no setor portuário.</p>
+                    </div>
+                </div>
+
+                <div class="mt-16 text-center">
+                    <h3 class="text-3xl font-bold text-sky-800 mb-8">Certificações Intermediárias: Valorizando a sua Trajetória</h3>
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="p-6 bg-white rounded-lg shadow-md border-t-4 border-amber-500 hover:shadow-xl transition-shadow">
+                            <h4 class="font-bold text-xl text-sky-900 mb-2">Módulo I: Agente Administrativo</h4>
+                            <p class="text-slate-600 text-sm">Ao completar o 1º e 2º períodos.</p>
+                        </div>
+                        <div class="p-6 bg-white rounded-lg shadow-md border-t-4 border-amber-500 hover:shadow-xl transition-shadow">
+                            <h4 class="font-bold text-xl text-sky-900 mb-2">Módulo II: Operador de Transportes Multimodais</h4>
+                            <p class="text-slate-600 text-sm">Ao completar o 1º e 3º períodos.</p>
+                        </div>
+                        <div class="p-6 bg-white rounded-lg shadow-md border-t-4 border-amber-500 hover:shadow-xl transition-shadow">
+                            <h4 class="font-bold text-xl text-sky-900 mb-2">Módulo III: Assistente de Comércio Exterior</h4>
+                            <p class="text-slate-600 text-sm">Ao completar o 3º e 4º períodos.</p>
+                        </div>
+                        <div class="p-6 bg-white rounded-lg shadow-md border-t-4 border-amber-500 hover:shadow-xl transition-shadow">
+                            <h4 class="font-bold text-xl text-sky-900 mb-2">Módulo IV: Coordenador de Operações Portuárias</h4>
+                            <p class="text-slate-600 text-sm">Ao completar o 4º e 5º períodos.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- NOVA SEÇÃO: Jornada de Formação Acelerada (Timeline) -->
+        <section id="jornada" class="py-20 bg-white">
+            <div class="container mx-auto px-6 max-w-5xl">
+                <h2 class="text-4xl font-bold text-sky-800 text-center mb-12">Uma Jornada de Formação Acelerada</h2>
+                <p class="text-center text-lg text-slate-700 mb-10 max-w-3xl mx-auto">Em apenas 2 anos e meio, o curso proporciona uma imersão completa no universo portuário, combinando teoria e prática para uma formação sólida e rápida.</p>
+
+                <div class="relative max-w-4xl mx-auto py-8">
+                    <!-- Linha central da timeline (apenas para desktop) -->
+                    <div class="timeline-line hidden md:block"></div>
+
+                    <!-- Item 1: 1º Período -->
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content w-full md:w-1/2 md:pr-8">
+                            <p class="font-bold text-sky-700 text-lg mb-1">1º Período</p>
+                            <h3 class="text-2xl font-bold text-slate-800 mb-2">Fundamentos Essenciais</h3>
+                            <p class="text-slate-600">Início com a base da logística, gestão e meio ambiente, preparando o terreno para os conceitos portuários.</p>
+                        </div>
+                    </div>
+
+                    <!-- Item 2: 2º Período (Certificação) -->
+                    <div class="timeline-item certification">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content w-full md:w-1/2 md:pl-8">
+                            <p class="font-bold text-amber-600 text-lg mb-1">2º Período</p>
+                            <h3 class="text-2xl font-bold text-slate-800 mb-2">Operações e Práticas</h3>
+                            <p class="text-slate-600">Aprofundamento em operações e início da Prática Profissional Supervisionada (PPS).</p>
+                            <span class="inline-block mt-3 bg-amber-100 text-amber-800 text-sm font-medium px-2.5 py-0.5 rounded-full">Certificação: Agente Administrativo</span>
+                        </div>
+                    </div>
+
+                    <!-- Item 3: 3º Período (Certificação) -->
+                    <div class="timeline-item certification">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content w-full md:w-1/2 md:pr-8">
+                            <p class="font-bold text-amber-600 text-lg mb-1">3º Período</p>
+                            <h3 class="text-2xl font-bold text-slate-800 mb-2">Comércio Exterior e Estratégia</h3>
+                            <p class="text-slate-600">Estudo aprofundado de comércio exterior e legislação, preparando para o cenário global.</p>
+                            <span class="inline-block mt-3 bg-amber-100 text-amber-800 text-sm font-medium px-2.5 py-0.5 rounded-full">Certificação: Operador de Transportes Multimodais</span>
+                        </div>
+                    </div>
+
+                    <!-- Item 4: 4º Período (Certificação) -->
+                    <div class="timeline-item certification">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content w-full md:w-1/2 md:pl-8">
+                            <p class="font-bold text-amber-600 text-lg mb-1">4º Período</p>
+                            <h3 class="text-2xl font-bold text-slate-800 mb-2">Gestão e Legislação Portuária</h3>
+                            <p class="text-slate-600">Foco em legislação específica, simulação de operações e gestão avançada para o ambiente portuário.</p>
+                            <span class="inline-block mt-3 bg-amber-100 text-amber-800 text-sm font-medium px-2.5 py-0.5 rounded-full">Certificação: Assistente de Comércio Exterior</span>
+                        </div>
+                    </div>
+
+                    <!-- Item 5: 5º Período (Certificação Final) -->
+                    <div class="timeline-item certification">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content w-full md:w-1/2 md:pr-8">
+                            <p class="font-bold text-amber-600 text-lg mb-1">5º Período</p>
+                            <h3 class="text-2xl font-bold text-slate-800 mb-2">Conclusão e Formatura</h3>
+                            <p class="text-slate-600">Aprimoramento final e conclusão da formação, com foco em habilidades de coordenação e liderança.</p>
+                            <span class="inline-block mt-3 bg-amber-100 text-amber-800 text-sm font-medium px-2.5 py-0.5 rounded-full">Certificação: Coordenador de Operações Portuárias</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- NOVA SEÇÃO: Estrutura Curricular Balanceada (Gráfico) -->
+        <section id="estrutura-curricular" class="py-20 bg-slate-100">
+            <div class="container mx-auto px-6 max-w-5xl">
+                <h2 class="text-4xl font-bold text-sky-800 text-center mb-12">Estrutura Curricular Balanceada</h2>
+                <p class="text-center text-lg text-slate-700 mb-10 max-w-3xl mx-auto">Nossa carga horária de **2400 horas** é cuidadosamente distribuída para garantir uma formação completa e multidisciplinar, preparando nossos alunos para todos os aspectos do setor portuário.</p>
+                
+                <div class="chart-container">
+                    <canvas id="courseStructureChart"></canvas>
+                </div>
+                <div class="mt-8 text-center text-slate-600 text-base">
+                    <p>O gráfico acima ilustra a proporção dedicada a cada componente curricular:</p>
+                    <ul class="list-disc list-inside mt-2 mx-auto w-fit">
+                        <li>**Aulas Teóricas:** 2000 horas</li>
+                        <li>**Prática Profissional Supervisionada (PPS):** 200 horas</li>
+                        <li>**Atividades Acadêmico-Científico-Culturais (AACC):** 200 horas</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Habilidades Desenvolvidas pelos Alunos -->
+        <section id="habilidades" class="py-20 bg-white">
+            <div class="container mx-auto px-6 max-w-5xl">
+                <h2 class="text-4xl font-bold text-sky-800 text-center mb-12">Habilidades do Nosso Egresso: Prontos para o Mercado</h2>
+                <p class="text-center text-lg text-slate-700 mb-10 max-w-3xl mx-auto">Nossos Tecnólogos em Gestão Portuária são formados com um conjunto robusto de competências que os tornam profissionais versáteis e altamente empregáveis.</p>
+                
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="skill-card">
+                        <div class="flex items-center text-sky-700 mb-4">
+                            <svg class="w-8 h-8 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.001 12.001 0 002.944 12c0 2.894.945 5.609 2.598 7.025a11.956 11.956 0 016.485 2.12c1.41-.955 2.894-1.996 4.475-2.944a12.001 12.001 0 001.077-.442 12.001 12.001 0 001.077-.442c-.01-.004-.02-.008-.03-.012-.01-.004-.02-.008-.03-.012a12.001 12.001 0 001.077-.442c.01-.004.02-.008.03-.012.01-.004.02-.008.03-.012z"></path></svg>
+                            <h3 class="text-2xl font-bold text-sky-900">Raciocínio Lógico e Análise de Dados</h3>
+                        </div>
+                        <p class="text-slate-600">Familiaridade com números, planilhas, pesquisas e estatísticas para realizar estudos, organizar dados e medir desempenho.</p>
+                    </div>
+                    <div class="skill-card">
+                        <div class="flex items-center text-sky-700 mb-4">
+                            <svg class="w-8 h-8 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h2a2 2 0 002-2V7a2 2 0 00-2-2h-3L11 2 7 5H4a2 2 0 00-2 2v11a2 2 0 002 2h2m0-8a2 2 0 100-4 2 2 0 000 4zm0 0h6m-3-3l3 3m0 0l-3 3"></path></svg>
+                            <h3 class="text-2xl font-bold text-sky-900">Gestão de Pessoas e Relacionamento</h3>
+                        </div>
+                        <p class="text-slate-600">Habilidade em relações interpessoais, negociação, gestão de conflitos e manutenção de equipes motivadas.</p>
+                    </div>
+                    <div class="skill-card">
+                        <div class="flex items-center text-sky-700 mb-4">
+                            <svg class="w-8 h-8 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            <h3 class="text-2xl font-bold text-sky-900">Visão Estratégica e Inovação</h3>
+                        </div>
+                        <p class="text-slate-600">Capacidade de utilizar recursos para atingir objetivos, identificar pontos fortes/fracos e contribuir para a modernização portuária.</p>
+                    </div>
+                    <div class="skill-card">
+                        <div class="flex items-center text-sky-700 mb-4">
+                            <svg class="w-8 h-8 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2h7a2 2 0 002-2v-1a2 2 0 012-2h2.945M10 20v-1m4 1v-1m4 1h.01M7 20h.01M16 15V8a2 2 0 00-2-2h-4a2 2 0 00-2 2v7m-3 0h12"></path></svg>
+                            <h3 class="text-2xl font-bold text-sky-900">Visão Global e Intermodal</h3>
+                        </div>
+                        <p class="text-slate-600">Compreensão da cadeia de transportes, armazenagem, legislação alfandegária e visão intermodal do ciclo origem-destino.</p>
+                    </div>
+                    <div class="skill-card">
+                        <div class="flex items-center text-sky-700 mb-4">
+                            <svg class="w-8 h-8 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.042 6.84-2.946 9.614l-2.036-2.036A13.003 13.003 0 009 11h3zm6.002-3.002c-.933-.933-2.338-1.428-3.794-1.428-.865 0-1.745.244-2.508.736l-.004.004-.006.006A10.003 10.003 0 0012 8a10.003 10.003 0 00-4.794-.964c-.863 0-1.722.244-2.508.736l-.004.004-.006.006A10.003 10.003 0 003 11h2c0-2.894.945-5.609 2.598-7.025a11.956 11.956 0 016.485 2.12c1.41-.955 2.894-1.996 4.475-2.944a12.001 12.001 0 001.077-.442 12.001 12.001 0 001.077-.442c-.01-.004-.02-.008-.03-.012-.01-.004-.02-.008-.03-.012a12.001 12.001 0 001.077-.442c.01-.004.02-.008.03-.012.01-.004.02-.008.03-.012zM12 12v.01M9 12h.01M15 12h.01M12 15h.01M12 9h.01M6 18h.01M18 18h.01"></path></svg>
+                            <h3 class="text-2xl font-bold text-sky-900">Inglês Instrumental</h3>
+                        </div>
+                        <p class="text-slate-600">Conhecimento indispensável para a comunicação no cenário logístico global e para a atualização constante.</p>
+                    </div>
+                    <div class="skill-card">
+                        <div class="flex items-center text-sky-700 mb-4">
+                            <svg class="w-8 h-8 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.559 23.559 0 0112 15c-1.399 0-2.75-.285-4.004-.848m-4.486-3.868a23.559 23.559 0 0113.255-4.004M12 3c-1.399 0-2.75.285-4.004.848m4.004-4.004A23.559 23.559 0 0121 10.745m-4.486 3.868a23.559 23.559 0 01-13.255 4.004M12 21c1.399 0 2.75-.285 4.004-.848m-4.004-4.004A23.559 23.559 0 013 13.255m4.486 3.868c1.254.563 2.605.848 4.004.848m-4.004-4.004a23.559 23.559 0 01-13.255-4.004"></path></svg>
+                            <h3 class="text-2xl font-bold text-sky-900">Agente de Mudança e Ética</h3>
+                        </div>
+                        <p class="text-slate-600">Capacidade de compreender e promover a cultura organizacional, combatendo vícios e fomentando a inovação.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Oportunidades de Parceria -->
+        <section id="parcerias" class="py-20 bg-sky-800 text-white">
+            <div class="container mx-auto px-6 text-center max-w-5xl">
+                <h2 class="text-4xl font-bold text-amber-400 mb-10">Conecte-se à Excelência: Oportunidades de Parceria</h2>
+                <p class="text-lg text-sky-100 mb-12 max-w-3xl mx-auto">Sua empresa pode ser parte fundamental na formação dos futuros líderes do setor portuário. Juntos, impulsionamos o desenvolvimento regional e a inovação.</p>
+                
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="bg-sky-700/50 p-6 rounded-lg shadow-md hover:bg-sky-700/70 transition-colors">
+                        <div class="feature-icon flex justify-center"><svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M12 20.354a4 4 0 110 5.292M12 12.354a4 4 0 110 5.292M12 16.354a4 4 0 110 5.292M12 8.354a4 4 0 110 5.292"></path></svg></div>
+                        <h3 class="font-bold text-xl mb-2">Acesso a Talentos Qualificados</h3>
+                        <p class="text-sky-100">Recrute nossos alunos e egressos preparados para as demandas do setor, com habilidades técnicas e gerenciais.</p>
+                    </div>
+                    <div class="bg-sky-700/50 p-6 rounded-lg shadow-md hover:bg-sky-700/70 transition-colors">
+                        <div class="feature-icon flex justify-center"><svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-2.828-2.828L12 17.172l-4.596-4.596a2 2 0 00-2.828 2.828L7.172 20H4a2 2 0 01-2-2V6a2 2 0 012-2h16a2 2 0 012 2v12a2 2 0 01-2 2h-3.172l-.707-.707z"></path></svg></div>
+                        <h3 class="font-bold text-xl mb-2">Projetos de Pesquisa e Extensão</h3>
+                        <p class="text-sky-100">Colabore em iniciativas que buscam soluções inovadoras para os desafios específicos da sua organização.</p>
+                    </div>
+                    <div class="bg-sky-700/50 p-6 rounded-lg shadow-md hover:bg-sky-700/70 transition-colors">
+                        <div class="feature-icon flex justify-center"><svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19V6l12-3v13M9 19H5a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2m0 0l2 2m-2-2l2 2M9 19l6-6m-6 0h6"></path></svg></div>
+                        <h3 class="font-bold text-xl mb-2">Desenvolvimento e Capacitação</h3>
+                        <p class="text-sky-100">Aproveite nosso expertise acadêmico para programas de treinamento e aperfeiçoamento customizados para sua equipe.</p>
+                    </div>
+                    <div class="bg-sky-700/50 p-6 rounded-lg shadow-md hover:bg-sky-700/70 transition-colors">
+                        <div class="feature-icon flex justify-center"><svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h2a2 2 0 002-2V7a2 2 0 00-2-2h-3L11 2 7 5H4a2 2 0 00-2 2v11a2 2 0 002 2h2m0-8a2 2 0 100-4 2 2 0 000 4zm0 0h6m-3-3l3 3m0 0l-3 3"></path></svg></div>
+                        <h3 class="font-bold text-xl mb-2">Contribuição para o Crescimento Regional</h3>
+                        <p class="text-sky-100">Participe ativamente do fortalecimento do ecossistema portuário e logístico da nossa região.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção de Contato -->
+        <section id="contato" class="py-20 bg-white">
+            <div class="container mx-auto px-6 text-center max-w-3xl">
+                <h2 class="text-4xl font-bold text-sky-800 mb-10">Fale Conosco</h2>
+                <p class="text-lg text-slate-700 mb-8">Interessado em saber mais sobre o curso, nossos alunos ou oportunidades de parceria? Entre em contato!</p>
+                
+                <div class="space-y-6">
+                    <p class="text-xl font-semibold text-sky-700">Email para Contato:</p>
+                    <a href="mailto:direcao.faeterjcampos@desup.faetec.rj.gov.br" class="text-blue-600 hover:text-blue-800 text-lg md:text-xl font-medium break-all">direcao.faeterjcampos@desup.faetec.rj.gov.br</a>
+                    
+                    <p class="text-xl font-semibold text-sky-700 pt-6">Endereço:</p>
+                    <p class="text-lg text-slate-700">Av. Alberto Lamego, 712</p>
+                    <p class="text-lg text-slate-700">Parque Califórnia, Campos dos Goytacazes, RJ</p>
+                    <p class="text-lg text-slate-700">CEP: 28016-812</p>
+                </div>
+
+                <div class="mt-12">
+                    <a href="#home" class="inline-flex items-center justify-center bg-sky-700 text-white font-bold py-3 px-8 rounded-lg hover:bg-sky-800 transition-colors shadow-lg">
+                        Voltar ao Topo
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-800 text-slate-300 py-12">
+        <div class="container mx-auto px-6 text-center">
+            <p class="font-bold text-lg">FAETERJ Campos</p>
+            <p class="font-bold text-lg">FAETEC - Fundação de Apoio à Escola Técnica</p>
+            <p class="mt-2">Av. Alberto Lamego, 712, Campos dos Goytacazes, RJ, 28016-812</p>
+            <p class="mt-4">Promovendo a Educação Profissional e Tecnológica pública e gratuita no Estado do Rio de Janeiro.</p>
+            <p class="text-sm text-slate-500 mt-8">&copy; 2024 FAETERJ Campos. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const navLinks = mobileMenu.querySelectorAll('a');
+
+            mobileMenuButton.addEventListener('click', function () {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden'); // Fecha o menu ao clicar em um link
+                });
+            });
+
+            const header = document.getElementById('header');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    header.classList.add('py-2');
+                    header.classList.remove('py-3');
+                    header.classList.add('shadow-md');
+                } else {
+                    header.classList.add('py-3');
+                    header.classList.remove('py-2');
+                    header.classList.remove('shadow-md');
+                }
+            });
+            
+            // Configuração do gráfico Chart.js para a Estrutura Curricular
+            const courseData = {
+                labels: ['Aulas Teóricas', 'Prática Profissional Supervisionada (PPS)', 'Atividades Acadêmico-Científico-Culturais (AACC)'],
+                data: [2000, 200, 200], // Dados do PDF: 2000h teóricas, 200h PPS, 200h AACC (Total 2400h)
+            };
+
+            const totalHours = courseData.data.reduce((a, b) => a + b, 0);
+
+            const ctx = document.getElementById('courseStructureChart');
+            if (ctx) { // Garante que o elemento canvas existe
+                const myChart = new Chart(ctx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: courseData.labels,
+                        datasets: [{
+                            label: 'Carga Horária (horas)',
+                            data: courseData.data,
+                            backgroundColor: [
+                                '#0369a1', /* sky-700 */
+                                '#0ea5e9', /* sky-500 */
+                                '#7dd3fc'  /* sky-300 */
+                            ],
+                            borderColor: '#f8fafc', /* slate-50 */
+                            borderWidth: 4,
+                            hoverOffset: 16
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    color: '#475569', /* slate-600 */
+                                    font: {
+                                        size: 14,
+                                        family: 'Inter'
+                                    },
+                                    usePointStyle: true,
+                                    boxWidth: 10
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed !== null) {
+                                            const value = context.parsed;
+                                            const percentage = ((value / totalHours) * 100).toFixed(1);
+                                            label += `${value}h (${percentage}%)`;
+                                        }
+                                        return label;
+                                    }
+                                },
+                                bodyFont: { size: 14, family: 'Inter' },
+                                titleFont: { size: 16, family: 'Inter', weight: 'bold' }
+                            }
+                        },
+                        cutout: '60%'
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
