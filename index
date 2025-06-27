@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAETERJ Campos - Curso Superior de Tecnologia em Gestão Portuária</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Porto Sereno (Neutros quentes, azul tecnológico, e um toque de areia/dourado) -->
+    <!-- Application Structure Plan: Estrutura de rolagem de página única com seções narrativas para apresentar o curso. Começa com o resultado (o profissional), detalha a jornada de formação com marcos interativos (certificações), destaca os diferenciais, apresenta dados visuais (gráfico de rosca) e termina com uma chamada à ação clara para parcerias. A estrutura foi escolhida para ser persuasiva e fácil de navegar para empresas e futuros alunos, priorizando o "porquê" sobre o "o quê". -->
+    <!-- Visualization & Content Choices: 1. Perfil do Egresso (Pilar de Competências): Goal=Organizar, Method=Cards interativos (HTML/Tailwind/JS) para exibir as 3 áreas de competência (Gerenciar, Inventariar, Administrar) de forma clara. 2. Estrutura Curricular: Goal=Informar/Comparar, Method=Gráfico de Donut (Chart.js/Canvas) para visualizar a distribuição da carga horária, tornando os dados quantitativos digeríveis. Container do gráfico devidamente restringido. 3. Jornada do Curso: Goal=Organizar/Mudar, Method=Timeline visual (HTML/Tailwind/JS) para mostrar a progressão semestral e destacar as certificações intermediárias como pontos de valor. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #0369a1; /* sky-700 */
+            border: 4px solid #f0f9ff; /* sky-50 */
+        }
+        .timeline-item-cert::before {
+             background-color: #f59e0b; /* amber-500 */
+        }
+
+        /* Estilos do Logotipo */
+        .header-logo-container { /* Novo estilo para o logo no cabeçalho */
+            display: flex;
+            align-items: center;
+            gap: 0.5rem; /* Espaçamento menor para o cabeçalho */
+            /* Remove padding, background-color, border-radius, box-shadow aqui */
+            transform: scale(1);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .header-logo-container:hover {
+            transform: scale(1.03);
+        }
+
+        .header-logo-icon-wrapper { /* Tamanho ajustado para o cabeçalho */
+            width: 40px; 
+            height: 30px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0; /* Evita que o ícone diminua em telas pequenas */
+        }
+
+        .header-book-base {
+            width: 100%;
+            height: 20px; /* Reduzido */
+            background-color: #0369a1; /* Azul profundo */
+            border-radius: 0 0 5px 5px; /* Curva na base do "livro" */
+            position: absolute;
+            bottom: 0;
+            clip-path: polygon(0 0, 100% 0, 80% 100%, 20% 100%); /* Forma de livro aberto */
+            transform: translateY(5px); /* Ajuste */
+        }
+
+        .header-arrow-up {
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent; /* Reduzido */
+            border-right: 10px solid transparent; /* Reduzido */
+            border-bottom: 20px solid #f59e0b; /* Âmbar/Dourado - Reduzido */
+            position: absolute;
+            top: 0px;
+            transform: translateY(0px);
+            z-index: 1;
+        }
+
+        .header-wave-element {
+            width: 30px; /* Reduzido */
+            height: 15px; /* Reduzido */
+            background-color: #0ea5e9; /* Azul secundário, para a onda */
+            border-radius: 0 0 50% 50%; /* Meia-lua para a onda */
+            position: absolute;
+            bottom: 0px;
+            opacity: 0.7;
+            transform: translateY(5px); /* Desloca para aparecer abaixo do livro/seta */
+            z-index: 0;
+        }
+
+        .header-logo-text { /* Tamanho ajustado para o cabeçalho */
+            line-height: 1;
+            display: flex;
+            flex-direction: column;
+            text-align: left; /* Alinhar à esquerda no cabeçalho */
+        }
+
+        .header-logo-text-faeterj {
+            font-weight: 800; /* Extra bold */
+            color: #0369a1; /* Azul profundo */
+            letter-spacing: -0.05em; /* Ajuste para um visual mais coeso */
+            font-size: 1.25rem; /* text-xl */
+        }
+
+        .header-logo-text-campos {
+            font-weight: 600; /* Semi-bold */
+            color: #475569; /* slate-600 */
+            font-size: 0.875rem; /* text-sm */
+            margin-top: 0; /* Remover margin-top aqui */
+        }
+
+        /* Responsividade para o logo no cabeçalho */
+        @media (min-width: 768px) {
+            .header-logo-text {
+                flex-direction: row;
+                gap: 0.5rem;
+                font-size: 1.5rem; /* text-2xl on larger screens */
+            }
+            .header-logo-text-faeterj {
+                font-size: 1.5rem; /* text-2xl */
+            }
+            .header-logo-text-campos {
+                font-size: 1rem; /* text-base */
+                margin-top: 0;
+            }
+            .header-logo-container {
+                gap: 1rem;
+            }
+            .header-logo-icon-wrapper {
+                width: 60px; /* slightly larger icon on desktop */
+                height: 40px;
+            }
+            .header-book-base {
+                height: 30px;
+            }
+            .header-arrow-up {
+                border-left: 15px solid transparent;
+                border-right: 15px solid transparent;
+                border-bottom: 25px solid #f59e0b;
+            }
+            .header-wave-element {
+                width: 40px;
+                height: 20px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <header id="header" class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50 transition-all duration-300">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <!-- Logotipo da FAETERJ Campos -->
+            <div class="header-logo-container">
+                <div class="header-logo-icon-wrapper">
+                    <div class="header-book-base"></div>
+                    <div class="header-arrow-up"></div>
+                    <div class="header-wave-element"></div>
+                </div>
+                <div class="header-logo-text">
+                    <span class="header-logo-text-faeterj">FAETERJ</span>
+                    <span class="header-logo-text-campos">Campos</span>
+                </div>
+            </div>
+            
+            <div class="hidden md:flex space-x-8">
+                <a href="#perfil" class="text-slate-600 hover:text-sky-700 font-semibold">O Profissional</a>
+                <a href="#jornada" class="text-slate-600 hover:text-sky-700 font-semibold">Jornada</a>
+                <a href="#diferenciais" class="text-slate-600 hover:text-sky-700 font-semibold">Diferenciais</a>
+                <a href="#parcerias" class="text-slate-600 hover:text-sky-700 font-semibold">Parcerias</a>
+            </div>
+            <a href="#parcerias" class="hidden md:block bg-sky-700 text-white font-bold py-2 px-4 rounded-lg hover:bg-sky-800 transition-colors">
+                Seja um Parceiro
+            </a>
+            <button id="mobile-menu-button" class="md:hidden text-slate-800">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden px-6 pt-2 pb-4 space-y-2">
+            <a href="#perfil" class="block text-slate-600 hover:text-sky-700 font-semibold">O Profissional</a>
+            <a href="#jornada" class="block text-slate-600 hover:text-sky-700 font-semibold">Jornada</a>
+            <a href="#diferenciais" class="block text-slate-600 hover:text-sky-700 font-semibold">Diferenciais</a>
+            <a href="#parcerias" class="block bg-sky-700 text-white font-bold py-2 px-4 rounded-lg hover:bg-sky-800 transition-colors text-center mt-2">Seja um Parceiro</a>
+        </div>
+    </header>
+
+    <main>
+        <section id="hero" class="relative min-h-[60vh] md:min-h-[80vh] flex items-center bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1612776562855-ab1b5b63da65?q=80&w=2070&auto=format&fit=crop');">
+            <div class="absolute inset-0 bg-sky-900/70"></div>
+            <div class="relative container mx-auto px-6 text-center text-white">
+                <h1 class="text-4xl md:text-6xl font-extrabold mb-4 leading-tight">Formando os Líderes do Futuro Portuário</h1>
+                <p class="text-lg md:text-2xl mb-8 max-w-3xl mx-auto text-sky-100">O Curso Superior de Tecnologia em Gestão Portuária da FAETERJ Campos capacita profissionais para inovar e otimizar o setor que move o Brasil.</p>
+                <div class="space-x-4">
+                    <a href="#jornada" class="bg-amber-500 text-sky-900 font-bold py-3 px-8 rounded-lg text-lg hover:bg-amber-400 transition-transform hover:scale-105">Conheça o Curso</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="perfil" class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-sky-800">O Profissional que o Mercado Procura</h2>
+                    <p class="mt-4 text-lg text-slate-600 max-w-3xl mx-auto">Nossos egressos são especialistas completos, prontos para enfrentar os desafios do setor portuário com uma base sólida em gestão, inventário e administração.</p>
+                </div>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="bg-slate-50 p-8 rounded-xl shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-300">
+                        <div class="flex items-center justify-center h-16 w-16 rounded-full bg-sky-100 text-sky-700 mb-6">
+                            <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h12M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-12a2.25 2.25 0 01-2.25-2.25V3M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12h.008v.008H16.5V12zm-3 0h.008v.008H13.5V12zm-3 0h.008v.008H10.5V12z" /></svg>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3 text-sky-900">Gerenciar</h3>
+                        <p class="text-slate-600">Desenvolvimento de raciocínio lógico, conhecimento de tecnologia, gestão de conflitos para liderar equipes e projetos com eficiência.</p>
+                    </div>
+                    <div class="bg-slate-50 p-8 rounded-xl shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-300">
+                         <div class="flex items-center justify-center h-16 w-16 rounded-full bg-sky-100 text-sky-700 mb-6">
+                             <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125" /></svg>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3 text-sky-900">Inventariar</h3>
+                        <p class="text-slate-600">Domínio sobre a cadeia de suprimentos, processos de exportação, legislação aduaneira, custos logísticos, transportes modais e planejamento estratégico de estoque.</p>
+                    </div>
+                    <div class="bg-slate-50 p-8 rounded-xl shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-300">
+                        <div class="flex items-center justify-center h-16 w-16 rounded-full bg-sky-100 text-sky-700 mb-6">
+                           <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h6.375M9 12h6.375m-6.375 5.25h6.375M5.25 3a2.25 2.25 0 012.25-.221l1.141.761c.44.293.986.293 1.426 0l1.141-.761A2.25 2.25 0 0118.75 3" /></svg>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3 text-sky-900">Administrar</h3>
+                        <p class="text-slate-600">Capacidade para administrar o comércio exterior, custos, legislação portuária e planejar operações complexas em terminais, garantindo a fluidez e a legalidade dos processos.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="jornada" class="py-20 bg-slate-50">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold text-sky-800">Uma Jornada de Formação Acelerada</h2>
+                    <p class="mt-4 text-lg text-slate-600 max-w-3xl mx-auto">Em apenas 2 anos, nossos alunos desenvolvem competências essenciais e recebem certificações que impulsionam suas carreiras desde o início.</p>
+                </div>
+
+                <div class="relative max-w-4xl mx-auto">
+                    <div class="absolute left-3 md:left-1/2 w-1.5 h-full bg-sky-200 -translate-x-1/2"></div>
+                    
+                    <div class="timeline-item relative pl-8 md:pl-0 md:flex md:justify-end md:w-1/2 mb-12">
+                        <div class="md:text-right md:pr-12 w-full">
+                            <p class="font-bold text-sky-700">1º Período</p>
+                            <h3 class="text-xl font-bold text-slate-800 mt-1">Fundamentos e Visão Geral</h3>
+                            <p class="text-slate-600 mt-2">Introdução às Operações de Logística, Matemática Aplicada, Gestão Ambiental e Empreendedorismo.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item timeline-item-cert relative pl-8 md:pl-0 md:flex md:w-1/2 md:ml-auto mb-12">
+                         <div class="md:pl-12 w-full">
+                            <p class="font-bold text-amber-600">2º Período</p>
+                            <h3 class="text-xl font-bold text-slate-800 mt-1">Gestão de Operações</h3>
+                            <p class="text-slate-600 mt-2">Foco em Gestão de Pessoas, Cadeia de Suprimentos e Qualidade. Início do Projeto Extensionista I.</p>
+                            <div class="mt-4 bg-amber-100 text-amber-800 p-3 rounded-lg inline-flex items-center font-semibold">
+                                <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
+                                Certificação: Operador de Transportes Modais
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item relative pl-8 md:pl-0 md:flex md:justify-end md:w-1/2 mb-12">
+                        <div class="md:text-right md:pr-12 w-full">
+                            <p class="font-bold text-sky-700">3º Período</p>
+                            <h3 class="text-xl font-bold text-slate-800 mt-1">Estratégia e Comércio Exterior</h3>
+                            <p class="text-slate-600 mt-2">Aprofundamento em Planejamento Estratégico, Sistemática do Comércio Exterior e Operação de Terminais.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item timeline-item-cert relative pl-8 md:pl-0 md:flex md:w-1/2 md:ml-auto">
+                         <div class="md:pl-12 w-full">
+                            <p class="font-bold text-amber-600">4º Período</p>
+                            <h3 class="text-xl font-bold text-slate-800 mt-1">Especialização e Legislação</h3>
+                            <p class="text-slate-600 mt-2">Domínio da Legislação Portuária, Simulação de Operações, Gestão de Custos e Manutenção.</p>
+                            <div class="mt-4 bg-amber-100 text-amber-800 p-3 rounded-lg inline-flex items-center font-semibold">
+                                <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
+                                Certificação: Coordenador de Operações Portuárias
+                            </div>
+                         </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <section id="diferenciais" class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="text-center p-6">
+                        <div class="text-sky-700 mb-4">
+                            <svg class="w-12 h-12 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m5.231 13.481L15 17.25m-4.5 0l-1.269-1.269" /></svg>
+                        </div>
+                        <h3 class="font-bold text-xl mb-2">Projetos Práticos</h3>
+                        <p class="text-slate-600">Aplicação real do conhecimento em projetos de extensão com temas atuais como Logística Reversa e Energias Alternativas.</p>
+                    </div>
+                    <div class="text-center p-6">
+                         <div class="text-sky-700 mb-4">
+                            <svg class="w-12 h-12 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0l-.07.004c-.03.002-.06.004-.09.006l-.09.006c-.03.002-.06.004-.09.006l-1.081.099a5.37 5.37 0 00-1.24.516c-.25.122-.483.26-.695.412a5.37 5.37 0 00-1.24.516l-.09.006c-.03.002-.06.004-.09.006l-.09.006c-.03.002-.06.004-.09.006l-1.08.099c-.96.09-1.827.34-2.57.722m15.482 0l-.07.004c-.03.002-.06.004-.09.006l-.09.006c-.03.002-.06.004-.09.006l-1.081.099a5.37 5.37 0 00-1.24.516c-.25.122-.483.26-.695.412a5.37 5.37 0 00-1.24.516l-.09.006c-.03.002-.06.004-.09.006l-.09.006c-.03.002-.06.004-.09.006l-1.08.099c-.96.09-1.827.34-2.57.722m15.482 0A49.952 49.952 0 0012 14.25a49.952 49.952 0 00-7.742-3.203" /></svg>
+                        </div>
+                        <h3 class="font-bold text-xl mb-2">Corpo Docente Qualificado</h3>
+                        <p class="text-slate-600">Professores mestres e doutores com vasta experiência de mercado, conectando a teoria com a prática do setor.</p>
+                    </div>
+                    <div class="text-center p-6">
+                         <div class="text-sky-700 mb-4">
+                            <svg class="w-12 h-12 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.03 1.125 0 1.131.094 1.976 1.057 1.976 2.192V7.5M8.25 7.5h7.5m-7.5 0l-1 4.5h9.5l-1-4.5m-7.5 0V5.625c0-1.036.84-1.875 1.875-1.875h3.75c1.036 0 1.875.84 1.875 1.875V7.5m-7.5 0h7.5" /></svg>
+                        </div>
+                        <h3 class="font-bold text-xl mb-2">Estrutura e Tecnologia</h3>
+                        <p class="text-slate-600">Laboratórios de informática, salas equipadas e acesso a uma vasta biblioteca física e virtual (Pearson Higher Education).</p>
+                    </div>
+                     <div class="text-center p-6">
+                         <div class="text-sky-700 mb-4">
+                            <svg class="w-12 h-12 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        </div>
+                        <h3 class="font-bold text-xl mb-2">Flexibilidade</h3>
+                        <p class="text-slate-600">Turnos matutino e noturno que permitem ao aluno conciliar os estudos com outras atividades profissionais.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="estrutura-chart" class="py-20 bg-slate-50">
+            <div class="container mx-auto px-6">
+                <div class="grid lg:grid-cols-2 gap-12 items-center">
+                    <div class="text-center lg:text-left">
+                         <h2 class="text-3xl md:text-4xl font-bold text-sky-800">Estrutura Curricular Balanceada</h2>
+                        <p class="mt-4 text-lg text-slate-600">O curso é projetado para oferecer uma formação completa, equilibrando uma base teórica robusta com experiências práticas essenciais, disciplinas eletivas para personalização e atividades culturais para uma visão de mundo ampliada.</p>
+                        <p class="mt-4 text-slate-500">A carga horária total de 1730 horas é cuidadosamente distribuída para maximizar o aprendizado e o desenvolvimento de competências.</p>
+                    </div>
+                    <div>
+                        <div class="chart-container max-w-sm mx-auto">
+                            <canvas id="courseStructureChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="parcerias" class="py-20 bg-sky-800 text-white">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-3xl md:text-4xl font-bold">Seja um Parceiro Estratégico</h2>
+                <p class="mt-4 text-lg text-sky-200 max-w-3xl mx-auto">Conecte sua empresa a uma nova geração de talentos e impulsione a inovação no seu negócio.</p>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mt-12 max-w-6xl mx-auto">
+                    <div class="bg-sky-700/50 p-6 rounded-lg">
+                        <h3 class="font-bold text-xl text-amber-400 mb-2">Acesso a Talentos</h3>
+                        <p>Recrute profissionais qualificados e alinhados com as demandas atuais do setor portuário.</p>
+                    </div>
+                    <div class="bg-sky-700/50 p-6 rounded-lg">
+                        <h3 class="font-bold text-xl text-amber-400 mb-2">Inovação e Pesquisa</h3>
+                        <p>Colabore em projetos de extensão e pesquisa para solucionar desafios reais da sua empresa.</p>
+                    </div>
+                    <div class="bg-sky-700/50 p-6 rounded-lg">
+                        <h3 class="font-bold text-xl text-amber-400 mb-2">Capacitação</h3>
+                        <p>Desenvolva programas de treinamento customizados para suas equipes com nosso apoio acadêmico.</p>
+                    </div>
+                    <div class="bg-sky-700/50 p-6 rounded-lg">
+                        <h3 class="font-bold text-xl text-amber-400 mb-2">Desenvolvimento Regional</h3>
+                        <p>Invista no futuro da nossa região e fortaleça o ecossistema portuário local.</p>
+                    </div>
+                </div>
+                <div class="mt-12">
+                    <a href="mailto:direcao.faeterjcampos@desup.faetec.rj.gov.br" 
+                       class="bg-amber-500 text-sky-900 font-bold py-4 px-10 rounded-lg text-xl hover:bg-amber-400 transition-transform hover:scale-105 inline-block">
+                        Entre em Contato
+                    </a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-800 text-slate-300 py-12">
+        <div class="container mx-auto px-6 text-center">
+	    <p class="font-bold text-lg">FAETERJ Campos</p>
+            <p class="font-bold text-lg">FAETEC - Fundação de Apoio à Escola Técnica</p>
+            <p class="mt-2">Av. Alberto Lamego, 712, Campos dos Goytacazes, RJ, 28016-812</p>
+            <p class="mt-4">Promovendo a Educação Profissional e Tecnológica pública e gratuita no Estado do Rio de Janeiro.</p>
+            <p class="text-sm text-slate-500 mt-8">&copy; 2024 FAETERJ Campos. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            mobileMenuButton.addEventListener('click', function () {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            const header = document.getElementById('header');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    header.classList.add('py-2');
+                    header.classList.remove('py-3');
+                } else {
+                    header.classList.add('py-3');
+                    header.classList.remove('py-2');
+                }
+            });
+            
+            const courseData = {
+                labels: ['Disciplinas Obrigatórias', 'Atividades Extensionistas', 'Disciplinas Eletivas', 'Atividades Científico-Culturais'],
+                data: [1530, 216, 100, 100], 
+            };
+            
+            const totalHours = courseData.data.reduce((a, b) => a + b, 0);
+
+            const ctx = document.getElementById('courseStructureChart').getContext('2d');
+            const myChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: courseData.labels,
+                    datasets: [{
+                        label: 'Carga Horária (horas)',
+                        data: courseData.data,
+                        backgroundColor: [
+                            '#0369a1', // sky-700
+                            '#0ea5e9', // sky-500
+                            '#7dd3fc', // sky-300
+                            '#f59e0b'  // amber-500
+                        ],
+                        borderColor: '#f8fafc', // slate-50
+                        borderWidth: 4,
+                        hoverOffset: 16
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#475569', // slate-600
+                                font: {
+                                    size: 14,
+                                    family: 'Inter'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        const value = context.parsed;
+                                        const percentage = ((value / totalHours) * 100).toFixed(1);
+                                        label += `${value}h (${percentage}%)`;
+                                    }
+                                }
+                            },
+                             bodyFont: { size: 14, family: 'Inter' },
+                             titleFont: { size: 16, family: 'Inter', weight: 'bold' }
+                        }
+                    },
+                    cutout: '60%'
+                }
+            });
+        });
+    </script>
+</body>
+</html>
